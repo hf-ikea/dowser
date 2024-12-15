@@ -2,10 +2,10 @@ mod dipole_util {
     use core::f64;
     use std::f64::consts::PI;
     use spec_math::cephes64::sici;
-    use num_complex::{Complex, ComplexFloat};
+    use num_complex::Complex;
 
     const GAMMA: f64 = 0.577215664901532860606512;
-    const FREE_SPACE_IMPEDANCE: f64 = 376.73031;
+    const FREE_SPACE_IMPEDANCE: f64 = 376.730313;
     const SPEED_OF_LIGHT: f64 = 299792458.0;
     pub fn sin2(x: f64) -> f64 {
         f64::sin(x).powf(2.0)
@@ -48,29 +48,27 @@ mod dipole_util {
         )
     }
 
-    pub fn z(f: f64, l: f64, a: f64) -> Complex<f64> {
-        Complex::new(r(f, l), x(f, l, a))
+    pub fn z(f: f64, length: f64, diameter: f64) -> Complex<f64> {
+        Complex::new(r(f, length), x(f, length, diameter))
     }
 
-    pub fn antenna_loss(z_load: f64, z_source: f64) -> f64 {
-        //in dB
-        -20.0 * f64::log10(((z_load - z_source) / (z_load + z_source)).abs())
+    /// What I like to call the "good enough" model, ignores the ground and differences in non-resonant antennas
+    /// theta is in radians of course, this outputs dbi
+    /// ""directivity""
+    pub fn gain(theta: f64) -> f64 {
+        sin2(theta) * 3.15
     }
 
-    pub fn swr(z_load: Complex<f64>, z_source: Complex<f64>) -> f64 {
-        let refl_coef: Complex<f64> = (z_load - z_source) / (z_load + z_source);
-        let refl_abs: f64 = refl_coef.abs();
-        (1.0 + refl_abs) / (1.0 - refl_abs)
-    }
+    
 }
 
 #[cfg(test)]
 mod tests {
     use num_complex::Complex;
 
-    use crate::dipole_util::dipole_util::swr;
-
     use super::dipole_util::z;
+
+    use crate::util::util::swr;
 
     #[test]
     fn test_dipole_swr_sim() {
