@@ -2,7 +2,7 @@ use std::f64::consts::PI;
 
 use crate::consts::FREE_SPACE_PERMEABILITY;
 
-use super::{Model, ModeledLine};
+use crate::feed_line::{FeedLine, Model, ModeledFeedLine};
 
 pub struct CoaxLineState {
     pub inner_diameter: f64,  // outer diameter of inter conductor in meters
@@ -14,7 +14,7 @@ pub struct CoaxLineState {
 }
 
 impl Model for CoaxLineState {
-    fn model(&self, properties: super::TransmissionLineProperties) -> super::ModeledLine {
+    fn model(&self, properties: FeedLine) -> ModeledFeedLine {
         // henry/meter
         fn get_coax_inductance(
             permeability: f64,
@@ -23,7 +23,7 @@ impl Model for CoaxLineState {
         ) -> f64 {
             (permeability / (2.0 * PI)) * ((inner_shield_diameter / inner_conductor_diameter).ln())
         }
-        ModeledLine::new(
+        ModeledFeedLine::new_from_irc(
             properties,
             (properties.frequency * FREE_SPACE_PERMEABILITY / PI).sqrt()
                 * ((self.resistivity_inner.sqrt() / self.inner_diameter)
@@ -44,14 +44,15 @@ mod tests {
     use num_complex::Complex;
 
     use crate::{
-        consts::{FREE_SPACE_PERMEABILITY, FREE_SPACE_PERMITTIVITY}, trx_line::TransmissionLineProperties
+        consts::{FREE_SPACE_PERMEABILITY, FREE_SPACE_PERMITTIVITY},
+        feed_line::FeedLine,
     };
 
     use super::*;
 
     #[test]
     fn test_coax_line() {
-        let properties = TransmissionLineProperties {
+        let properties = FeedLine {
             frequency: 2000e6,
             length: 100.0,
             z_l: Complex::new(50.0, 0.0),
@@ -69,8 +70,8 @@ mod tests {
 
         println!(
             "Total line loss @ {0}MHz: {1}dB",
-            model.line_properties.frequency / 1e6,
-            model.get_loss_per_meter() * model.line_properties.length
+            model.line.frequency / 1e6,
+            model.get_loss_per_meter() * model.line.length
         );
     }
 }
