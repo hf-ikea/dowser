@@ -16,18 +16,6 @@ mod trx_line {
     }
 
     impl TransmissionLineState {
-        pub fn setup_line_state() -> TransmissionLineState {
-            TransmissionLineState {
-                f: 0.0,
-                length: 0.0,
-                z: Complex::ZERO,
-                r: 0.0,
-                l: 0.0,
-                c: 0.0,
-                g: 0.0,
-                gamma: Complex::ZERO
-            }
-        }
         pub fn set_impedance(&mut self) {
             let w: f64 = hz_to_angular_freq(self.f);
             let x: Complex<f64> = Complex::new(self.r, w * self.l);

@@ -14,17 +14,6 @@ mod coax_line {
     }
 
     impl CoaxLineState {
-        pub fn setup_coax_state() -> CoaxLineState {
-            let t_state: TransmissionLineState = TransmissionLineState::setup_line_state();
-            CoaxLineState {
-                line_state: t_state,
-                inner_diameter: 0.0,
-                shield_diameter: 0.0,
-                dielectric_constant: 0.0,
-                magnetic_permeability: 0.0
-            }
-        }
-
         pub fn set_capacitance(&mut self) {
             self.line_state.c = (2.0 * PI * self.dielectric_constant) / (self.shield_diameter / self.inner_diameter).ln();
         }
@@ -37,14 +26,11 @@ mod coax_line {
             self.line_state.r = (self.line_state.f * FREE_SPACE_PERMEABILITY / PI).sqrt() * ((resistivity_inner.sqrt() / self.inner_diameter) + (resistivity_shield.sqrt() / self.shield_diameter));
         }
 
+        /// dB/meter
         pub fn get_loss_per_meter(&mut self) -> f64 {
-            // db/meter
             let resistive_loss: f64 = 4.34294 * self.line_state.r / self.line_state.z.abs();
             let dielectric_loss: f64 = 0.00409312451 * self.line_state.f * self.line_state.c * self.line_state.z.abs();
-            dbg!(resistive_loss * self.line_state.length);
-            dbg!(dielectric_loss * self.line_state.length);
             dielectric_loss + resistive_loss
-            //8.68588 * self.line_state.r.sqrt() / (2.0 * self.line_state.z.abs())
         }
 
         // henry/meter
@@ -74,7 +60,7 @@ mod tests {
     #[test]
     fn test_coax_line() {
         let line_state: TransmissionLineState = TransmissionLineState {
-            f: 2500e6,
+            f: 2000e6,
             length: 100.0,
             z: Complex::ZERO,
             r: 0.0,
@@ -99,6 +85,7 @@ mod tests {
         coax_state.line_state.set_impedance();
         coax_state.line_state.set_propagation_constant();
         dbg!(coax_state.line_state.z);
-        dbg!(coax_state.get_loss_per_meter() * coax_state.line_state.length);
+        let loss: f64 = coax_state.get_loss_per_meter() * coax_state.line_state.length;
+        println!("Total line loss @ {0}MHz: {1}dB", coax_state.line_state.f / 1e6, loss);
     }
 }
