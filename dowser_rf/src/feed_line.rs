@@ -62,7 +62,7 @@ impl ModeledFeedLine {
     pub fn get_impedance_at_length(&self) -> Complex<f64> {
         let z_0: Complex<f64> = self.z;
         let x: Complex<f64> = (self.gamma * self.l).tanh();
-        z_0 * ((self.line.z_l + (z_0 * x)) / (z_0 + (self.line.z_l * x)))
+        z_0 * ((self.line.z_l + z_0 * x) / (z_0 + self.line.z_l * x))
     }
     /// Loss per meter in dB/meter
     pub fn get_loss_per_meter(&self) -> f64 {

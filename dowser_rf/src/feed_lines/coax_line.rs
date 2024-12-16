@@ -21,7 +21,7 @@ impl Model for CoaxLineProperties {
             inner_conductor_diameter: f64,
             inner_shield_diameter: f64,
         ) -> f64 {
-            (permeability / (2.0 * PI)) * ((inner_shield_diameter / inner_conductor_diameter).ln())
+            (permeability / (2.0 * PI)) * (inner_shield_diameter / inner_conductor_diameter).ln()
         }
         ModeledFeedLine::new_from_irc(
             properties,
