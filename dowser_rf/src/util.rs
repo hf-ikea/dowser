@@ -9,6 +9,11 @@ pub fn coth(x: f64) -> f64 {
     x.cosh() / x.sinh()
 }
 
+/// Computes sin^2(x)
+pub fn sin2(x: f64) -> f64 {
+    f64::sin(x).powf(2.0)
+}
+
 /// in db
 pub fn reflection_loss(z_load: Complex<f64>, z_source: Complex<f64>) -> f64 {
     -20.0 * f64::log10(((z_load - z_source) / (z_load + z_source)).abs())

@@ -1,5 +1,6 @@
 mod consts;
-mod dipole_util;
+mod antenna;
+mod antennas;
 mod feed_line;
 mod feed_lines;
 mod propagation;

@@ -3,10 +3,15 @@ use num_complex::Complex;
 use spec_math::cephes64::sici;
 use std::f64::consts::PI;
 
-use crate::consts::{FREE_SPACE_IMPEDANCE, GAMMA, SPEED_OF_LIGHT};
-/// Computes sin^2(x)
-pub fn sin2(x: f64) -> f64 {
-    f64::sin(x).powf(2.0)
+use crate::{consts::{FREE_SPACE_IMPEDANCE, GAMMA, SPEED_OF_LIGHT}, util::sin2};
+
+pub struct DipoleProperties {
+    /// Dipole length in meters
+    pub length: f64,
+    /// Dipole diameter in meters
+    pub diameter: f64,
+    /// Impedance of the source, typically going to be a feedline
+    pub z_s: Complex<f64>,
 }
 
 pub fn r(f: f64, l: f64) -> f64 {

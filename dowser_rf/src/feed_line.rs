@@ -3,7 +3,7 @@ use num_complex::{Complex, ComplexFloat};
 
 #[derive(Debug, Clone, Copy)]
 pub struct FeedLine {
-    /// Frequency in Hz
+    /// Current frequency in Hz
     pub frequency: f64,
     /// Length in meters
     pub length: f64,
