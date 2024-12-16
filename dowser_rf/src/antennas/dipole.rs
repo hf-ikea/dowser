@@ -3,15 +3,19 @@ use num_complex::Complex;
 use spec_math::cephes64::sici;
 use std::f64::consts::PI;
 
-use crate::{consts::{FREE_SPACE_IMPEDANCE, GAMMA, SPEED_OF_LIGHT}, util::sin2};
+use crate::{antenna::{AntennaModel, AntennaProperties, ModeledAntenna}, consts::{FREE_SPACE_IMPEDANCE, GAMMA, SPEED_OF_LIGHT}, util::sin2};
 
 pub struct DipoleProperties {
     /// Dipole length in meters
     pub length: f64,
     /// Dipole diameter in meters
     pub diameter: f64,
-    /// Impedance of the source, typically going to be a feedline
-    pub z_s: Complex<f64>,
+}
+
+impl AntennaModel for DipoleProperties {
+    fn model(&self, properties: AntennaProperties) -> ModeledAntenna {
+        ModeledAntenna::new(properties, z(properties.frequency, self.length, self.diameter))
+    }
 }
 
 pub fn r(f: f64, l: f64) -> f64 {
@@ -49,9 +53,9 @@ pub fn gain(theta: f64) -> f64 {
 mod tests {
     use num_complex::Complex;
 
-    use super::z;
+    use super::{z, DipoleProperties};
 
-    use crate::util::swr;
+    use crate::{antenna::{AntennaPolarization, AntennaProperties}, util::swr};
 
     #[test]
     fn test_dipole_swr_sim() {
@@ -63,6 +67,17 @@ mod tests {
         let diameter: f64 = 2.053e-3; // meters
 
         let source: Complex<f64> = Complex::new(50.0, 0.0); // 50 ohms
+
+        let properties: AntennaProperties = AntennaProperties {
+            frequency: 2000e6,
+            orientation: 0.0,
+            polarization: AntennaPolarization::Horizontal,
+            z_s: Complex::new(50.0, 0.0),
+        };
+        let coax: DipoleProperties = DipoleProperties {
+            length: 10.0,
+            diameter: 2.053e-3,
+        };
 
         let mut f: f64 = f_lower;
         while f < f_upper {

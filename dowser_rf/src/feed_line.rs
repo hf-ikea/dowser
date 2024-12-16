@@ -2,7 +2,7 @@ use crate::util::{hz_to_angular_freq, reflection_loss};
 use num_complex::{Complex, ComplexFloat};
 
 #[derive(Debug, Clone, Copy)]
-pub struct FeedLine {
+pub struct FeedLineProperties {
     /// Current frequency in Hz
     pub frequency: f64,
     /// Length in meters
@@ -15,7 +15,7 @@ pub struct FeedLine {
 
 #[derive(Debug, Clone, Copy)]
 pub struct ModeledFeedLine {
-    pub line: FeedLine,
+    pub line: FeedLineProperties,
     /// Complex impedance
     pub z: Complex<f64>,
     /// Resistance in ohms/meter
@@ -30,13 +30,13 @@ pub struct ModeledFeedLine {
     pub gamma: Complex<f64>,
 }
 
-pub trait Model {
-    fn model(&self, properties: FeedLine) -> ModeledFeedLine;
+pub trait FeedlineModel {
+    fn model(&self, properties: FeedLineProperties) -> ModeledFeedLine;
 }
 
 impl ModeledFeedLine {
     pub fn new_from_irc(
-        line: FeedLine,
+        line: FeedLineProperties,
         resistance: f64,
         inductance: f64,
         capacitance: f64,

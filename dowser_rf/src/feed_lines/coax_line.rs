@@ -2,7 +2,7 @@ use std::f64::consts::PI;
 
 use crate::consts::FREE_SPACE_PERMEABILITY;
 
-use crate::feed_line::{FeedLine, Model, ModeledFeedLine};
+use crate::feed_line::{FeedLineProperties, FeedlineModel, ModeledFeedLine};
 
 pub struct CoaxLineProperties {
     pub inner_diameter: f64,  // outer diameter of inter conductor in meters
@@ -13,8 +13,8 @@ pub struct CoaxLineProperties {
     pub resistivity_shield: f64,
 }
 
-impl Model for CoaxLineProperties {
-    fn model(&self, properties: FeedLine) -> ModeledFeedLine {
+impl FeedlineModel for CoaxLineProperties {
+    fn model(&self, properties: FeedLineProperties) -> ModeledFeedLine {
         // henry/meter
         fn get_coax_inductance(
             permeability: f64,
@@ -45,20 +45,20 @@ mod tests {
 
     use crate::{
         consts::{FREE_SPACE_PERMEABILITY, FREE_SPACE_PERMITTIVITY},
-        feed_line::FeedLine,
+        feed_line::FeedLineProperties,
     };
 
     use super::*;
 
     #[test]
     fn test_coax_line() {
-        let properties: FeedLine = FeedLine {
+        let properties: FeedLineProperties = FeedLineProperties {
             frequency: 2000e6,
             length: 100.0,
             z_l: Complex::new(50.0, 0.0),
             z_s: Complex::new(50.0, 0.0),
         };
-        let coax_prop: CoaxLineProperties = CoaxLineProperties {
+        let coax: CoaxLineProperties = CoaxLineProperties {
             inner_diameter: 0.00274,
             shield_diameter: 0.00739,
             dielectric_constant: 1.38 * FREE_SPACE_PERMITTIVITY,
@@ -66,7 +66,7 @@ mod tests {
             resistivity_inner: 1.724e-8, // copper
             resistivity_shield: 2.65e-8, // alu
         };
-        let model: ModeledFeedLine = coax_prop.model(properties);
+        let model: ModeledFeedLine = coax.model(properties);
 
         println!(
             "Total line loss @ {0}MHz: {1}dB",
