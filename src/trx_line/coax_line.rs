@@ -1,9 +1,9 @@
 mod coax_line {
     use std::f64::consts::PI;
 
-    use nalgebra::ComplexField;
+    use num_complex::ComplexFloat;
 
-    use crate::trx_line::trx_line::TransmissionLineState;
+    use crate::{trx_line::trx_line::TransmissionLineState, util::util::FREE_SPACE_PERMEABILITY};
 
     pub struct CoaxLineState {
         pub line_state: TransmissionLineState,
@@ -33,9 +33,18 @@ mod coax_line {
             self.line_state.l = Self::get_coax_inductance(self.magnetic_permeability, self.inner_diameter, self.shield_diameter);
         }
 
+        pub fn set_resistance(&mut self, resistivity_inner: f64, resistivity_shield: f64) {
+            self.line_state.r = (self.line_state.f * FREE_SPACE_PERMEABILITY / PI).sqrt() * ((resistivity_inner.sqrt() / self.inner_diameter) + (resistivity_shield.sqrt() / self.shield_diameter));
+        }
+
         pub fn get_loss_per_meter(&mut self) -> f64 {
             // db/meter
-            8.686 * (self.line_state.r / (2.0 * self.line_state.z.re))
+            let resistive_loss: f64 = 4.34294 * self.line_state.r / self.line_state.z.abs();
+            let dielectric_loss: f64 = 0.00409312451 * self.line_state.f * self.line_state.c * self.line_state.z.abs();
+            dbg!(resistive_loss * self.line_state.length);
+            dbg!(dielectric_loss * self.line_state.length);
+            dielectric_loss + resistive_loss
+            //8.68588 * self.line_state.r.sqrt() / (2.0 * self.line_state.z.abs())
         }
 
         // henry/meter
@@ -47,7 +56,9 @@ mod coax_line {
 
 #[cfg(test)]
 mod tests {
-    use crate:: util::util::{get_rf_resistance, get_skin_depth, FREE_SPACE_PERMEABILITY, FREE_SPACE_PERMITTIVITY};
+    use num_complex::Complex;
+
+    use crate::{trx_line::trx_line::TransmissionLineState, util::util::{FREE_SPACE_PERMEABILITY, FREE_SPACE_PERMITTIVITY}};
 
     use super::coax_line::*;
 
@@ -62,21 +73,28 @@ mod tests {
 
     #[test]
     fn test_coax_line() {
-        let mut coax_state: CoaxLineState = CoaxLineState::setup_coax_state();
-        coax_state.inner_diameter = 0.00274;
-        coax_state.shield_diameter = 0.00739;
-        coax_state.dielectric_constant = 1.38 * FREE_SPACE_PERMITTIVITY;
-        coax_state.magnetic_permeability = 1.0 * FREE_SPACE_PERMEABILITY;
+        let line_state: TransmissionLineState = TransmissionLineState {
+            f: 2500e6,
+            length: 100.0,
+            z: Complex::ZERO,
+            r: 0.0,
+            l: 0.0,
+            c: 0.0,
+            g: 0.0,
+            gamma: Complex::ZERO,
+        };
+        let mut coax_state: CoaxLineState = CoaxLineState {
+            line_state,
+            inner_diameter: 0.00274,
+            shield_diameter: 0.00739,
+            dielectric_constant: 1.38 * FREE_SPACE_PERMITTIVITY,
+            magnetic_permeability: 1.0 * FREE_SPACE_PERMEABILITY
+        };
         coax_state.set_capacitance();
         coax_state.set_inductance();
-        coax_state.line_state.length = 100.0;
-        dbg!(coax_state.line_state.l);
-        let resistivity: f64 = 1.724e-8;
-        let f: f64 = 3e7;
-        let skin_depth: f64 = get_skin_depth(f, coax_state.magnetic_permeability, resistivity);
-        coax_state.line_state.f = f;
-        coax_state.line_state.r = get_rf_resistance(skin_depth, coax_state.shield_diameter, coax_state.line_state.length, resistivity);
-        dbg!(coax_state.line_state.r);
+        let resistivity_inner: f64 = 1.724e-8; // copper
+        let resistivity_shield: f64 = 2.65e-8; // alu
+        coax_state.set_resistance(resistivity_inner, resistivity_shield);
         coax_state.line_state.set_conductance();
         coax_state.line_state.set_impedance();
         coax_state.line_state.set_propagation_constant();

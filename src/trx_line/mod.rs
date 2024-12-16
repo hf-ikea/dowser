@@ -1,7 +1,6 @@
 pub mod coax_line;
 
 mod trx_line {
-    use nalgebra::ComplexField;
     use num_complex::Complex;
     use crate::util::util::{hz_to_angular_freq, reflection_loss};
 
@@ -14,10 +13,6 @@ mod trx_line {
         pub c: f64, // capacitance farads/meter
         pub g: f64, // conductance siemens/meter
         pub gamma: Complex<f64> // propagation constant
-    }
-
-    pub enum TransmissionLineType {
-        ideal,
     }
 
     impl TransmissionLineState {
@@ -37,14 +32,12 @@ mod trx_line {
             let w: f64 = hz_to_angular_freq(self.f);
             let x: Complex<f64> = Complex::new(self.r, w * self.l);
             let y: Complex<f64> = Complex::new(self.g, w * self.c);
-            dbg!(x);
-            dbg!(y);
-            //self.z = (x / y).sqrt();
-            self.z = Complex::new(self.l / self.c, 0.0).sqrt()
+            self.z = (x / y).sqrt();
         }
 
         pub fn set_conductance(&mut self) {
-            self.g = 1.0 / self.r;
+            //self.g = 10e-21; // i dont know???? this is conductance for PET ??
+            self.g = hz_to_angular_freq(self.f) * self.c * 0.00015; // 0.00015 loss tangent for PTFE close enough???
         }
     
         pub fn set_propagation_constant(&mut self) {

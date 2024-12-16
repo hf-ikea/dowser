@@ -33,12 +33,12 @@ pub mod util {
     }
 
     pub fn get_skin_depth(f: f64, permeability: f64, resistivity: f64) -> f64 {
-        503.0 * (resistivity / (permeability * f)).sqrt()
+        (resistivity / (PI * f * permeability)).sqrt()
     }
 
-    /// in ohms
-    pub fn get_rf_resistance(skin_depth: f64, diameter: f64, length: f64, resistivity: f64) -> f64 {
-        (length * resistivity) / (PI * skin_depth * diameter)
+    /// in ohm-meters
+    pub fn get_rf_resistance(skin_depth: f64, diameter: f64, resistivity: f64) -> f64 {
+        (resistivity) / (PI * skin_depth * diameter)
     }
 
     
@@ -52,10 +52,10 @@ mod tests {
     fn test_rf_resistance() {
         let resistivity: f64 = 2.44e-8; // gold
         let permeability: f64 = 1.0 * FREE_SPACE_PERMEABILITY;
-        let f: f64 = 1000.0;
+        let f: f64 = 50.0;
         let skin_depth: f64 = get_skin_depth(f, permeability, resistivity);
         dbg!(skin_depth);
-        let rf_resistance: f64 = get_rf_resistance(skin_depth, 0.033, 1.0, resistivity);
+        let rf_resistance: f64 = get_rf_resistance(skin_depth, 0.033, resistivity);
         dbg!(rf_resistance);
     }
 }
