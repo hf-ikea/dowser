@@ -3,7 +3,8 @@ pub mod util {
 
     use num_complex::{Complex, ComplexFloat};
 
-    const FREE_SPACE_PERMEABILITY: f64 = 12.5663706144e-7;
+    pub const FREE_SPACE_PERMITTIVITY: f64 = 8.85418781881e-12;
+    pub const FREE_SPACE_PERMEABILITY: f64 = 12.5663706144e-7;
 
     pub fn coth(x: f64) -> f64 {
         x.cosh() / x.sinh()
@@ -36,36 +37,25 @@ pub mod util {
     }
 
     /// in ohms
-    pub fn get_rf_resistance(skin_depth: f64, diameter: f64, length: f64, resistivity: f64) -> f64{
-        (length * resistivity) / (PI * skin_depth * (diameter - skin_depth))
+    pub fn get_rf_resistance(skin_depth: f64, diameter: f64, length: f64, resistivity: f64) -> f64 {
+        (length * resistivity) / (PI * skin_depth * diameter)
     }
 
-    pub fn get_coax_inductance(rel_permeability: f64, inner_conductor_diameter: f64, inner_shield_diameter: f64, length: f64) -> f64 {
-        ((rel_permeability * FREE_SPACE_PERMEABILITY * length) / (2.0 * PI)) * ((inner_conductor_diameter / inner_shield_diameter).ln())
-    }
+    
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::util::util::{get_coax_inductance, get_rf_resistance, get_skin_depth};
+    use crate::util::util::{get_rf_resistance, get_skin_depth, FREE_SPACE_PERMEABILITY};
 
     #[test]
     fn test_rf_resistance() {
         let resistivity: f64 = 2.44e-8; // gold
-        let permeability: f64 = 1.0;
+        let permeability: f64 = 1.0 * FREE_SPACE_PERMEABILITY;
         let f: f64 = 1000.0;
         let skin_depth: f64 = get_skin_depth(f, permeability, resistivity);
         dbg!(skin_depth);
         let rf_resistance: f64 = get_rf_resistance(skin_depth, 0.033, 1.0, resistivity);
         dbg!(rf_resistance);
-    }
-
-    #[test]
-    fn test_coax_inductance() {
-        let permeability: f64 = 1.0;
-        let inner_shield_diameter: f64 = 0.030;
-        let inner_conductor_diameter: f64 = 0.010;
-        let length: f64 = 0.001;
-        dbg!(get_coax_inductance(permeability, inner_conductor_diameter, inner_shield_diameter, length));
     }
 }

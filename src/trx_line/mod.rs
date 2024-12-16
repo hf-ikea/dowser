@@ -1,6 +1,7 @@
 pub mod coax_line;
 
 mod trx_line {
+    use nalgebra::ComplexField;
     use num_complex::Complex;
     use crate::util::util::{hz_to_angular_freq, reflection_loss};
 
@@ -12,7 +13,7 @@ mod trx_line {
         pub l: f64, // inductance henries/meter
         pub c: f64, // capacitance farads/meter
         pub g: f64, // conductance siemens/meter
-        gamma: Complex<f64> // propagation constant
+        pub gamma: Complex<f64> // propagation constant
     }
 
     pub enum TransmissionLineType {
@@ -20,26 +21,37 @@ mod trx_line {
     }
 
     impl TransmissionLineState {
-        pub fn setup_line_state() {
-
+        pub fn setup_line_state() -> TransmissionLineState {
+            TransmissionLineState {
+                f: 0.0,
+                length: 0.0,
+                z: Complex::ZERO,
+                r: 0.0,
+                l: 0.0,
+                c: 0.0,
+                g: 0.0,
+                gamma: Complex::ZERO
+            }
+        }
+        pub fn set_impedance(&mut self) {
+            let w: f64 = hz_to_angular_freq(self.f);
+            let x: Complex<f64> = Complex::new(self.r, w * self.l);
+            let y: Complex<f64> = Complex::new(self.g, w * self.c);
+            dbg!(x);
+            dbg!(y);
+            //self.z = (x / y).sqrt();
+            self.z = Complex::new(self.l / self.c, 0.0).sqrt()
         }
 
-        pub fn set_conductance(&mut self, f: f64) {
+        pub fn set_conductance(&mut self) {
             self.g = 1.0 / self.r;
         }
     
-        pub fn set_impedance(&mut self, f: f64) -> Complex<f64> {
-            let w: f64 = hz_to_angular_freq(f);
-            self.z = (Complex::new(self.r, w * self.l) / Complex::new(self.g, w * self.c)).sqrt();
-            self.z
-        }
-    
-        pub fn set_propagation_constant(&mut self, f: f64) -> Complex<f64> {
-            let w: f64 = hz_to_angular_freq(f);
+        pub fn set_propagation_constant(&mut self) {
+            let w: f64 = hz_to_angular_freq(self.f);
             let z: Complex<f64> = Complex::new(self.r, w * self.l);
             let y: Complex<f64> = Complex::new(self.g, w * self.c);
             self.gamma = (z * y).sqrt();
-            self.gamma
         }
     
         pub fn get_impedance_at_length(&mut self, z_load: Complex<f64>, f: f64, l: f64) -> Complex<f64> {
@@ -48,21 +60,8 @@ mod trx_line {
             z_0 * ((z_load + (z_0 * x)) / (z_0 + (z_load * x)))
         }
     
-        pub fn get_loss_at_freq(&mut self, f: f64) -> f64 {
-            // db/meter
-            0.0
+        pub fn total_match_loss(&mut self, z_load: Complex<f64>, z_source: Complex<f64>, f: f64, l: f64) -> f64 {
+            reflection_loss(z_load, self.z) + reflection_loss(self.get_impedance_at_length(z_load, f, l), z_source)
         }
-    
-        pub fn total_loss(&mut self, z_load: Complex<f64>, z_source: Complex<f64>, f: f64, l: f64) -> f64 {
-            reflection_loss(z_load, self.z) + (self.get_loss_at_freq(f) * l) + reflection_loss(self.get_impedance_at_length(z_load, f, l), z_source)
-        }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test_trx_line() {
-        
     }
 }
