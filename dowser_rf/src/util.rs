@@ -3,10 +3,9 @@ use std::f64::consts::PI;
 use num_complex::{Complex, ComplexFloat};
 
 pub fn coth(x: f64) -> f64 {
-    x.cosh() / x.sinh()
-}
-
-pub fn coth_complex(x: Complex<f64>) -> Complex<f64> {
+    if x == 0.0 {
+        return f64::NAN;
+    } 
     x.cosh() / x.sinh()
 }
 

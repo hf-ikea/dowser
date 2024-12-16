@@ -7,7 +7,7 @@ use crate::feed_line::{FeedLine, Model, ModeledFeedLine};
 pub struct CoaxLineState {
     pub inner_diameter: f64,  // outer diameter of inter conductor in meters
     pub shield_diameter: f64, // inner diameter of shield in meters
-    pub dielectric_constant: f64,
+    pub dielectric_constant: f64, // relative
     pub magnetic_permeability: f64, // relative
     pub resistivity_inner: f64,
     pub resistivity_shield: f64,
