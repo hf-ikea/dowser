@@ -2,6 +2,16 @@ todo
 
 hf only no vhf for a long while
 
+Station
+    Metadata
+        Location
+        Identity
+    Equipment
+        Antenna
+        Feed Line
+        Transmitter
+        Reciever
+
 Signal - type
     ALL signals will have identity, frequency, strength, mode, location
     Identity - ie call even if not possible

@@ -39,6 +39,7 @@ pub fn z(f: f64, length: f64, diameter: f64) -> Complex<f64> {
 pub fn gain(theta: f64) -> f64 {
     sin2(theta) * 3.15
 }
+
 #[cfg(test)]
 mod tests {
     use num_complex::Complex;
