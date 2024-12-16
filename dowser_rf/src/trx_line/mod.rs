@@ -13,6 +13,7 @@ struct TransmissionLineProperties {
     /// Complex source impedance
     z_s: Complex<f64>,
 }
+
 #[derive(Debug, Clone, Copy)]
 struct ModeledLine {
     pub line_properties: TransmissionLineProperties,

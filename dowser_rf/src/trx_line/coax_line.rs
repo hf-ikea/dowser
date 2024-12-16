@@ -1,6 +1,6 @@
 use std::f64::consts::PI;
 
-use crate::util::FREE_SPACE_PERMEABILITY;
+use crate::consts::FREE_SPACE_PERMEABILITY;
 
 use super::{Model, ModeledLine};
 
@@ -44,8 +44,7 @@ mod tests {
     use num_complex::Complex;
 
     use crate::{
-        trx_line::TransmissionLineProperties,
-        util::{FREE_SPACE_PERMEABILITY, FREE_SPACE_PERMITTIVITY},
+        consts::{FREE_SPACE_PERMEABILITY, FREE_SPACE_PERMITTIVITY}, trx_line::TransmissionLineProperties
     };
 
     use super::*;

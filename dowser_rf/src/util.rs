@@ -2,9 +2,6 @@ use std::f64::consts::PI;
 
 use num_complex::{Complex, ComplexFloat};
 
-pub const FREE_SPACE_PERMITTIVITY: f64 = 8.85418781881e-12;
-pub const FREE_SPACE_PERMEABILITY: f64 = 12.5663706144e-7;
-
 pub fn coth(x: f64) -> f64 {
     x.cosh() / x.sinh()
 }
@@ -42,7 +39,7 @@ pub fn get_rf_resistance(skin_depth: f64, diameter: f64, resistivity: f64) -> f6
 
 #[cfg(test)]
 mod tests {
-    use crate::util::{get_rf_resistance, get_skin_depth, FREE_SPACE_PERMEABILITY};
+    use crate::{consts::FREE_SPACE_PERMEABILITY, util::{get_rf_resistance, get_skin_depth}};
 
     #[test]
     fn test_rf_resistance() {
