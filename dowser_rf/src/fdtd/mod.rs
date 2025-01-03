@@ -7,9 +7,11 @@ trait Field {
     /// Returns the largest index in every dimension that exists in this array
     fn max_index(&self) -> Self::Index;
 }
+
 pub struct OneDField {
     array: Box<[f64]>,
 }
+
 impl OneDField {
     pub fn new_zeroed(size: usize) -> Self {
         Self {
