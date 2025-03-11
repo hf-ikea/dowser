@@ -4,7 +4,7 @@ use num_complex::Complex;
 pub struct AntennaProperties {
     /// Current frequency in Hz
     pub frequency: f64,
-    /// Orientation in radians (ie azumith), respective to idk
+    /// Orientation in radians (ie azimuth), respective to idk
     pub orientation: f64,
     /// The polarization of the antenna
     pub polarization: AntennaPolarization,

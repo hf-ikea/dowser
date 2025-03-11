@@ -53,7 +53,7 @@ mod tests {
     #[test]
     fn test_coax_line() {
         let properties: FeedLineProperties = FeedLineProperties {
-            frequency: 2000e6,
+            frequency: 100e6,
             length: 100.0,
             z_l: Complex::new(50.0, 0.0),
             z_s: Complex::new(50.0, 0.0),

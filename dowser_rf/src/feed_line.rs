@@ -41,7 +41,6 @@ impl ModeledFeedLine {
         inductance: f64,
         capacitance: f64,
     ) -> Self {
-        // let g = 10e-21; // i dont know???? this is conductance for PET ??
         let g = hz_to_angular_freq(line.frequency) * capacitance * 0.00015; // 0.00015 loss tangent for PTFE close enough???,
 
         let w: f64 = hz_to_angular_freq(line.frequency);

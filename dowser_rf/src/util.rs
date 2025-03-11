@@ -11,7 +11,7 @@ pub fn coth(x: f64) -> f64 {
 
 /// Computes sin^2(x)
 pub fn sin2(x: f64) -> f64 {
-    f64::sin(x).powf(2.0)
+    f64::sin(x).powi(2)
 }
 
 /// in db
