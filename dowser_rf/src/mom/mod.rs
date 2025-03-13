@@ -132,24 +132,23 @@ fn w_g(m: usize, n: usize, d_x: f64) -> f64 {
 
 #[cfg(test)]
 mod tests {
-    use std::f64::consts::PI;
+    use std::{f64::consts::PI, vec};
 
-    use nalgebra::{Dyn, OMatrix};
-    type DMatrixf64 = OMatrix<f64, Dyn, Dyn>;
+    use nalgebra::DMatrix;
 
-    use crate::{consts::FREE_SPACE_PERMITTIVITY, mom::{w_g, w_w}};
+    use crate::{consts::FREE_SPACE_PERMITTIVITY, mom::{w_g, w_w}, util::solve_square_matrix};
 
     use super::Wire;
     
     #[test]
     fn mom_wire() {
-        const SEGMENTS: usize = 10;
+        const SEGMENTS: usize = 20;
         const WIRE_LENGTH: f64 = 1.0; // 1m
         const WIRE_RADIUS: f64 = 0.001; // 1mm
         const DELTA: f64 = WIRE_LENGTH / SEGMENTS as f64;
         const TEST_VOLTAGE: f64 = 1.0;
 
-        let matrix: DMatrixf64 = DMatrixf64::identity(SEGMENTS, SEGMENTS).map_with_location(|n, m, _: f64| {
+        let a_matrix: DMatrix<f64> = DMatrix::zeros(SEGMENTS, SEGMENTS).map_with_location(|n, m, _: f64| {
             if n == m {
                 return 2.0 * (DELTA / WIRE_RADIUS).ln() * w_w(m, DELTA);
             } else {
@@ -157,14 +156,11 @@ mod tests {
             }
         });
 
-        dbg!(&matrix);
+        let b_matrix: Vec<f64> = (0..a_matrix.nrows()).map(|i| {
+            4.0 * PI * FREE_SPACE_PERMITTIVITY * TEST_VOLTAGE * w_w(i, DELTA)
+        }).collect();
 
-        let p_matrix = matrix.clone().try_inverse().unwrap();
-        dbg!(&p_matrix);
-        let mut wire = Wire::new_zeroed(SEGMENTS);
-        for i in 0..SEGMENTS {
-            wire[i] = p_matrix[(i, i)] * 4.0 * PI * FREE_SPACE_PERMITTIVITY * TEST_VOLTAGE * w_w(i, DELTA);
-        }
-        Wire::snapshot(&wire, 0, true);
+        let solves = solve_square_matrix(a_matrix, b_matrix);
+        dbg!(&solves);
     }
 }
